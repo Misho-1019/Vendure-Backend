@@ -8,4 +8,4 @@ RUN npm install
 COPY . .
 RUN npm run build   # 👈 compiles TS → dist/
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
