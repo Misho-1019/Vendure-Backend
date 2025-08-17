@@ -18,6 +18,14 @@ import {
   FileBasedTemplateLoader,
 } from '@vendure/email-plugin';
 
+import type { Request, Response, NextFunction } from 'express';
+
+const trustProxyMiddleware = (req: Request, _res: Response, next: NextFunction) => {
+  // trust Railway/ingress in prod; keep false in dev
+  req.app.set('trust proxy', IS_DEV ? false : 1);
+  next();
+};
+
 const IS_DEV =
   process.env.APP_ENV === 'dev' ||
   process.env.NODE_ENV !== 'production';
@@ -38,13 +46,11 @@ export const config: VendureConfig = {
     port: serverPort,
     adminApiPath: 'admin-api',
     shopApiPath: 'shop-api',
-    trustProxy: IS_DEV ? false : 1,
-    ...(IS_DEV
-      ? {
-          adminApiDebug: true,
-          shopApiDebug: true,
-        }
-      : {}),
+    middleware: [
+      { route: '/', handler: trustProxyMiddleware }, // 👈 must be first
+      // ... keep any other middleware you already had here
+    ],
+    ...(IS_DEV ? { adminApiDebug: true, shopApiDebug: true } : {}),
   },
 
   authOptions: {
