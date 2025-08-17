@@ -1,98 +1,145 @@
+import 'dotenv/config';
+import path from 'path';
 import {
+    VendureConfig,
+    UuidIdStrategy,
     dummyPaymentHandler,
     DefaultJobQueuePlugin,
     DefaultSchedulerPlugin,
     DefaultSearchPlugin,
-    VendureConfig,
 } from '@vendure/core';
-import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
-import 'dotenv/config';
-import path from 'path';
+import { HardenPlugin } from '@vendure/harden-plugin';
+import {
+  EmailPlugin,
+  defaultEmailHandlers,
+  FileBasedTemplateLoader,
+} from '@vendure/email-plugin';
 
-const IS_DEV = process.env.APP_ENV === 'dev';
-const serverPort = +process.env.PORT || 3000;
+const IS_DEV =
+  process.env.APP_ENV === 'dev' ||
+  process.env.NODE_ENV !== 'production';
+
+const serverPort = +(process.env.PORT || 3000);
 
 export const config: VendureConfig = {
-    apiOptions: {
-        port: serverPort,
-        adminApiPath: 'admin-api',
-        shopApiPath: 'shop-api',
-        trustProxy: IS_DEV ? false : 1,
-        // The following options are useful in development mode,
-        // but are best turned off for production for security
-        // reasons.
-        ...(IS_DEV ? {
-            adminApiDebug: true,
-            shopApiDebug: true,
-        } : {}),
+  entityOptions: {
+    entityIdStrategy: new UuidIdStrategy(),
+  },
+
+  apiOptions: {
+    port: serverPort,
+    adminApiPath: 'admin-api',
+    shopApiPath: 'shop-api',
+    trustProxy: IS_DEV ? false : 1,
+    ...(IS_DEV
+      ? {
+          adminApiDebug: true,
+          shopApiDebug: true,
+        }
+      : {}),
+  },
+
+  authOptions: {
+    tokenMethod: ['bearer', 'cookie'],
+    superadminCredentials: {
+      identifier: process.env.SUPERADMIN_USERNAME,
+      password: process.env.SUPERADMIN_PASSWORD,
     },
-    authOptions: {
-        tokenMethod: ['bearer', 'cookie'],
-        superadminCredentials: {
-            identifier: process.env.SUPERADMIN_USERNAME,
-            password: process.env.SUPERADMIN_PASSWORD,
-        },
-        cookieOptions: {
-          secret: process.env.COOKIE_SECRET,
-        },
+    cookieOptions: {
+      secret: process.env.COOKIE_SECRET,
     },
-    dbConnectionOptions: {
-        type: 'postgres',
-        // See the README.md "Migrations" section for an explanation of
-        // the `synchronize` and `migrations` options.
-        synchronize: false,
-        migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
-        logging: false,
-        database: process.env.DB_NAME,
-        schema: process.env.DB_SCHEMA,
-        host: process.env.DB_HOST,
-        port: +process.env.DB_PORT,
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-    },
-    paymentOptions: {
-        paymentMethodHandlers: [dummyPaymentHandler],
-    },
-    // When adding or altering custom field definitions, the database will
-    // need to be updated. See the "Migrations" section in README.md.
-    customFields: {},
-    plugins: [
-        GraphiqlPlugin.init(),
-        AssetServerPlugin.init({
-            route: 'assets',
-            assetUploadDir: path.join(__dirname, '../static/assets'),
-            // For local dev, the correct value for assetUrlPrefix should
-            // be guessed correctly, but for production it will usually need
-            // to be set manually to match your production url.
-            assetUrlPrefix: IS_DEV ? undefined : 'https://www.my-shop.com/assets/',
-        }),
-        DefaultSchedulerPlugin.init(),
-        DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
-        DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
-        EmailPlugin.init({
-            devMode: true,
-            outputPath: path.join(__dirname, '../static/email/test-emails'),
+  },
+
+  dbConnectionOptions: {
+    type: 'postgres',
+    synchronize: process.env.DB_SYNCHRONIZE === 'true',
+    migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
+    logging: false,
+    database: process.env.DB_NAME,
+    schema: process.env.DB_SCHEMA,
+    host: process.env.DB_HOST,
+    port: +(process.env.DB_PORT || 5432),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+  },
+
+  paymentOptions: {
+    paymentMethodHandlers: [dummyPaymentHandler],
+  },
+
+  // Add custom fields here later if needed
+  customFields: {},
+
+  plugins: [
+    // Enable GraphiQL only in dev to avoid exposing it in prod
+    ...(IS_DEV ? [GraphiqlPlugin.init()] : []),
+
+    AssetServerPlugin.init({
+      route: 'assets',
+      assetUploadDir: path.join(__dirname, '../static/assets'),
+      // Use your public backend URL in prod, e.g. https://<app>.up.railway.app/assets/
+      assetUrlPrefix: IS_DEV ? undefined : process.env.ASSET_URL_PREFIX,
+    }),
+
+    DefaultSchedulerPlugin.init(),
+    DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
+    DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
+
+    // Email plugin: dev mailbox locally; real SMTP in prod
+    EmailPlugin.init({
+      handlers: defaultEmailHandlers,
+      templateLoader: new FileBasedTemplateLoader(
+        path.join(__dirname, '../static/email/templates')
+      ),
+      globalTemplateVars: {
+        fromAddress: '"example" <noreply@example.com>',
+        verifyEmailAddressUrl: process.env.VERIFY_EMAIL_URL,
+        passwordResetUrl: process.env.RESET_PASSWORD_URL,
+        changeEmailAddressUrl: process.env.CHANGE_EMAIL_URL,
+      },
+      ...(IS_DEV
+        ? {
+            // Literal type fixes the TS error
+            devMode: true as const,
+            outputPath: path.join(
+              __dirname,
+              '../static/email/test-emails'
+            ),
             route: 'mailbox',
-            handlers: defaultEmailHandlers,
-            templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
-            globalTemplateVars: {
-                // The following variables will change depending on your storefront implementation.
-                // Here we are assuming a storefront running at http://localhost:8080.
-                fromAddress: '"example" <noreply@example.com>',
-                verifyEmailAddressUrl: 'http://localhost:8080/verify',
-                passwordResetUrl: 'http://localhost:8080/password-reset',
-                changeEmailAddressUrl: 'http://localhost:8080/verify-email-address-change'
+          }
+        : {
+            // Configure SMTP for production (or remove EmailPlugin until you need it)
+            transport: {
+              type: 'smtp',
+              host: process.env.SMTP_HOST,
+              port: +(process.env.SMTP_PORT || 587),
+              auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+              },
+              // secure: true, // if using port 465
             },
-        }),
-        AdminUiPlugin.init({
-            route: 'admin',
-            port: serverPort + 2,
-            adminUiConfig: {
-                apiPort: serverPort,
-            },
-        }),
-    ],
+          }),
+    }),
+
+    // Admin UI served by the same server.
+    // `port` is required by the plugin type; using serverPort+2 is the usual pattern
+    // and works fine on Railway (it’s internal to the container).
+    AdminUiPlugin.init({
+      route: 'admin',
+      port: serverPort + 2,
+      // Same-origin by default; apiHost/apiPort can be omitted unless hosting separately.
+      adminUiConfig: {
+        apiPort: serverPort,
+      },
+    }),
+
+    HardenPlugin.init({
+      maxQueryComplexity: 500,
+      apiMode: IS_DEV ? 'dev' : 'prod',
+    }),
+  ],
 };
