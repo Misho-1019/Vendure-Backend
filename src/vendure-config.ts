@@ -129,10 +129,13 @@ export const config: VendureConfig = {
     // and works fine on Railway (it’s internal to the container).
     AdminUiPlugin.init({
       route: 'admin',
-      port: serverPort + 2,
-      // Same-origin by default; apiHost/apiPort can be omitted unless hosting separately.
+      port: serverPort + 2, // required by the plugin type; internal-only
       adminUiConfig: {
-        apiPort: serverPort,
+        // Point the Admin UI (in the browser) to your public HTTPS domain
+        apiHost: `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`,
+        apiPort: 443,
+        adminApiPath: 'admin-api',
+        tokenMethod: 'cookie',
       },
     }),
 
