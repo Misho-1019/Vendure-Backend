@@ -24,6 +24,11 @@ const IS_DEV =
 
 const serverPort = +(process.env.PORT || 3000);
 
+const assetsDir = path.join(
+  path.dirname(require.resolve('@vendure/create/assets/products.csv')),
+  'images'
+);
+
 export const config: VendureConfig = {
   entityOptions: {
     entityIdStrategy: new UuidIdStrategy(),
@@ -52,18 +57,15 @@ export const config: VendureConfig = {
       secret: process.env.COOKIE_SECRET,
     },
   },
+  importExportOptions: {
+    importAssetsDir: assetsDir,
+  },
 
   dbConnectionOptions: {
     type: 'postgres',
-    synchronize: process.env.DB_SYNCHRONIZE === 'true',
-    migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
+    synchronize: process.env.DB_SYNCHRONIZE === 'true', // ✅ only while seeding!
     logging: false,
-    database: process.env.DB_NAME,
-    schema: process.env.DB_SCHEMA,
-    host: process.env.DB_HOST,
-    port: +(process.env.DB_PORT || 5432),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
+    url: process.env.DATABASE_URL, // <--- easiest
   },
 
   paymentOptions: {
