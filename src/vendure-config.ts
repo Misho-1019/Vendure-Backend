@@ -18,11 +18,16 @@ import {
   FileBasedTemplateLoader,
 } from '@vendure/email-plugin';
 
+// vendure-config.ts
 import type { Request, Response, NextFunction } from 'express';
 
 const trustProxyMiddleware = (req: Request, _res: Response, next: NextFunction) => {
-  // trust Railway/ingress in prod; keep false in dev
-  req.app.set('trust proxy', IS_DEV ? false : 1);
+  // set it on every request (cheap) and log once so we can confirm in Railway logs
+  const before = req.app.get('trust proxy');
+  req.app.set('trust proxy', 1); // trust first proxy hop (Railway)
+  if (before !== 1) {
+    console.log('[startup] set express trust proxy -> 1 (was:', before, ')');
+  }
   next();
 };
 
