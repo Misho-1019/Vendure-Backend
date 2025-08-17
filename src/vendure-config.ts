@@ -93,7 +93,7 @@ export const config: VendureConfig = {
     EmailPlugin.init({
       handlers: defaultEmailHandlers,
       templateLoader: new FileBasedTemplateLoader(
-        path.join(process.cwd(), 'src/static/email/templates')
+        path.join(process.cwd(), 'static/email/templates')
       ),
       globalTemplateVars: {
         fromAddress: '"example" <noreply@example.com>',
@@ -104,7 +104,7 @@ export const config: VendureConfig = {
       ...(IS_DEV
         ? {
             devMode: true as const,
-            outputPath: path.join(process.cwd(), 'src/static/email/test-emails'),
+            outputPath: path.join(process.cwd(), 'static/email/test-emails'),
             route: 'mailbox',
           }
         : {
