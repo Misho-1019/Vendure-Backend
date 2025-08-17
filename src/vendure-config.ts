@@ -79,9 +79,8 @@ export const config: VendureConfig = {
 
     AssetServerPlugin.init({
       route: 'assets',
-      assetUploadDir: path.join(__dirname, '../static/assets'),
-      // Use your public backend URL in prod, e.g. https://<app>.up.railway.app/assets/
-      assetUrlPrefix: IS_DEV ? undefined : process.env.ASSET_URL_PREFIX,
+      assetUploadDir: process.env.ASSET_UPLOAD_DIR || path.join(__dirname, '../static/assets'),
+      // keep your other options as-is
     }),
 
     DefaultSchedulerPlugin.init(),
