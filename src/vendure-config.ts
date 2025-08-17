@@ -93,7 +93,7 @@ export const config: VendureConfig = {
     EmailPlugin.init({
       handlers: defaultEmailHandlers,
       templateLoader: new FileBasedTemplateLoader(
-        path.join(__dirname, '../static/email/templates')
+        path.join(process.cwd(), 'src/static/email/templates')
       ),
       globalTemplateVars: {
         fromAddress: '"example" <noreply@example.com>',
@@ -103,16 +103,11 @@ export const config: VendureConfig = {
       },
       ...(IS_DEV
         ? {
-            // Literal type fixes the TS error
             devMode: true as const,
-            outputPath: path.join(
-              __dirname,
-              '../static/email/test-emails'
-            ),
+            outputPath: path.join(process.cwd(), 'src/static/email/test-emails'),
             route: 'mailbox',
           }
         : {
-            // Configure SMTP for production (or remove EmailPlugin until you need it)
             transport: {
               type: 'smtp',
               host: process.env.SMTP_HOST,
