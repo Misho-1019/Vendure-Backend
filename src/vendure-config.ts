@@ -51,6 +51,12 @@ export const config: VendureConfig = {
     port: serverPort,
     adminApiPath: 'admin-api',
     shopApiPath: 'shop-api',
+	cors: {
+      origin: [
+        'https://vendure-storefront-production-f077.up.railway.app', // 👈 replace with your storefront Railway domain
+      ],
+      credentials: true,
+    },
     middleware: [
       { route: '/', handler: trustProxyMiddleware }, // 👈 must be first
       // ... keep any other middleware you already had here
