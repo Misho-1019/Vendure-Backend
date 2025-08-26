@@ -10,7 +10,9 @@
     "start:server": "node ./dist/src/index.js",
     "start:worker": "node ./dist/src/index-worker.js",
     "start": "concurrently npm:start:*",
-    "populate": "ts-node ./scripts/populate.ts"
+    "populate": "ts-node ./scripts/populate.ts",
+    "migrate": "vendure migrate",
+    "migrate:gen": "vendure migrate --generate"
   },
   "dependencies": {
     "@vendure/admin-ui-plugin": "3.4.0",
@@ -27,5 +29,8 @@
     "@vendure/create": "^3.4.0",
     "concurrently": "9.2.0",
     "typescript": "5.8.2"
+  },
+  "overrides": {
+    "strip-json-comments": "3.1.1"
   }
 }
