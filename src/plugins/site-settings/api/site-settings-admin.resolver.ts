@@ -16,25 +16,7 @@ import {
 } from '@vendure/core';
 import { SiteSettingsService } from '../services/site-settings.service';
 import { SiteSettings } from '../entities/site-settings.entity';
-
-// These can be replaced by generated types if you set up code generation
-interface CreateSiteSettingsInput {
-    key: string;
-    title: string;
-    primaryColor: string;
-    accountHeading: string;
-    // Define the input fields here
-    customFields?: CustomFieldsObject;
-}
-interface UpdateSiteSettingsInput {
-    id: ID;
-    key?: string;
-    title?: string;
-    primaryColor?: string;
-    accountHeading?: string;
-    // Define the input fields here
-    customFields?: CustomFieldsObject;
-}
+import { CreateSiteSettingsInput, UpdateSiteSettingsInput } from '../types';
 
 @Resolver()
 export class SiteSettingsAdminResolver {
