@@ -1,9 +1,15 @@
-// backend/src/plugins/site-settings/api/admin.schema.ts
 import { gql } from 'graphql-tag';
 
 export const adminApiExtensions = gql/* GraphQL */ `
-    type SiteSettings {
+  type SiteSettings {
     id: ID!
+    key: String!
+    title: String!
+    primaryColor: String!
+    accountHeading: String!
+  }
+
+  input CreateSiteSettingsInput {
     key: String!
     title: String!
     primaryColor: String!
@@ -18,10 +24,12 @@ export const adminApiExtensions = gql/* GraphQL */ `
   }
 
   extend type Query {
-    siteSettings: SiteSettings
+    siteSettings(id: ID!): SiteSettings
   }
 
   extend type Mutation {
+    createSiteSettings(input: CreateSiteSettingsInput!): SiteSettings!
     updateSiteSettings(input: UpdateSiteSettingsInput!): SiteSettings!
+    deleteSiteSettings(id: ID!): DeletionResponse!
   }
 `;
