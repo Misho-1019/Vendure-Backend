@@ -1,7 +1,7 @@
 import { DeepPartial, HasCustomFields, VendureEntity } from '@vendure/core';
 import { Column, Entity } from 'typeorm';
 
-export class SiteSettingsCustomFields {}
+export class SiteSettingsCustomFields { }
 
 @Entity()
 export class SiteSettings extends VendureEntity implements HasCustomFields {
@@ -19,6 +19,9 @@ export class SiteSettings extends VendureEntity implements HasCustomFields {
 
   @Column({ default: '#3b82f6' })
   primaryColor: string;
+
+  @Column({ default: 'My Account' })
+  accountHeading: string;
 
   @Column(type => SiteSettingsCustomFields)
   customFields: SiteSettingsCustomFields;

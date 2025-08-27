@@ -7,12 +7,14 @@ export const adminApiExtensions = gql/* GraphQL */ `
     key: String!
     title: String!
     primaryColor: String!
+    accountHeading: String!
   }
 
   input UpdateSiteSettingsInput {
     id: ID!
     title: String
     primaryColor: String
+    accountHeading: String
   }
 
   extend type Query {

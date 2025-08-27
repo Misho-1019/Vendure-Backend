@@ -10,6 +10,6 @@ export class SiteSettingsShopResolver {
   @Allow(Permission.Public)
   async siteTheme(@Ctx() ctx: RequestContext) {
     const s = await this.service.get(ctx);
-    return { title: s.title, primaryColor: s.primaryColor };
+    return { title: s.title, primaryColor: s.primaryColor, accountHeading: s.accountHeading };
   }
 }

@@ -26,6 +26,7 @@ interface CreateSiteSettingsInput {
     key: string;
     title: string;
     primaryColor: string;
+    accountHeading: string;
     // Define the input fields here
     customFields?: CustomFieldsObject;
 }
@@ -34,6 +35,7 @@ interface UpdateSiteSettingsInput {
     key?: string;
     title?: string;
     primaryColor?: string;
+    accountHeading: string;
     // Define the input fields here
     customFields?: CustomFieldsObject;
 }
@@ -89,6 +91,7 @@ export class SiteSettingsService {
             key: 'default',
             title: 'My Store',
             primaryColor: '#3b82f6',
+            accountHeading: 'My Account',
         });
     }
 
