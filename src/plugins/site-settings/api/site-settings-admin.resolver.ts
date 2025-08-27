@@ -32,16 +32,6 @@ export class SiteSettingsAdminResolver {
         return this.siteSettingsService.findOne(ctx, args.id, relations);
     }
 
-    @Query()
-    @Allow(Permission.SuperAdmin)
-    async siteSettingss(
-        @Ctx() ctx: RequestContext,
-        @Args() args: { options: ListQueryOptions<SiteSettings> },
-        @Relations(SiteSettings) relations: RelationPaths<SiteSettings>,
-    ): Promise<PaginatedList<SiteSettings>> {
-        return this.siteSettingsService.findAll(ctx, args.options || undefined, relations);
-    }
-
     @Mutation()
     @Transaction()
     @Allow(Permission.SuperAdmin)
