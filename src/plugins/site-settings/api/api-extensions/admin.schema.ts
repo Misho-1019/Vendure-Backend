@@ -25,6 +25,7 @@ export const adminApiExtensions = gql/* GraphQL */ `
 
   extend type Query {
     siteSettings(id: ID!): SiteSettings
+    siteSettingsByKey(key: String!): SiteSettings
   }
 
   extend type Mutation {
