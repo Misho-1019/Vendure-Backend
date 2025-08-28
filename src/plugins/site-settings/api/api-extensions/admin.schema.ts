@@ -24,6 +24,7 @@ export const adminApiExtensions = gql/* GraphQL */ `
   }
 
   extend type Query {
+    siteSettingsSingleton: SiteSettings! 
     siteSettings(id: ID!): SiteSettings
     siteSettingsByKey(key: String!): SiteSettings
   }
