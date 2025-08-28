@@ -62,6 +62,17 @@ export class SiteSettingsService {
             });
     }
 
+    async findByKey(
+        ctx: RequestContext,
+        key: string,
+        relations?: RelationPaths<SiteSettings>,
+    ): Promise<SiteSettings | null> {
+        return this.connection.getRepository(ctx, SiteSettings).findOne({
+            where: { key },
+            relations,
+        });
+    }
+
     async get(ctx: RequestContext): Promise<SiteSettings> {
         // try to fetch the first settings row
         const list = await this.findAll(ctx, { take: 1 });
