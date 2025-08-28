@@ -20,7 +20,7 @@ import { CreateSiteSettingsInput, UpdateSiteSettingsInput } from '../types';
 
 @Resolver()
 export class SiteSettingsAdminResolver {
-    constructor(private siteSettingsService: SiteSettingsService) {}
+    constructor(private siteSettingsService: SiteSettingsService) { }
 
     @Query()
     @Allow(Permission.SuperAdmin)
@@ -30,6 +30,16 @@ export class SiteSettingsAdminResolver {
         @Relations(SiteSettings) relations: RelationPaths<SiteSettings>,
     ): Promise<SiteSettings | null> {
         return this.siteSettingsService.findOne(ctx, args.id, relations);
+    }
+
+    @Query()
+    @Allow(Permission.SuperAdmin) // or your custom permission later
+    async siteSettingsByKey(
+        @Ctx() ctx: RequestContext,
+        @Args() args: { key: string },
+        @Relations(SiteSettings) relations: RelationPaths<SiteSettings>,
+    ): Promise<SiteSettings | null> {
+        return this.siteSettingsService.findByKey(ctx, args.key, relations);
     }
 
     @Mutation()
